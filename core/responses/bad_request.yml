@@ -1,0 +1,14 @@
+description: Bad request, e.g. invalid file format
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: "../../core-api-server.yml#/components/schemas/ErrorInfo"
+        - type: object
+          properties:
+            code:
+              example: "gen-0002"
+              type: string
+            message:
+              example: "invalid file format"
+              type: string

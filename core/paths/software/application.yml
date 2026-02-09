@@ -1,0 +1,89 @@
+get:
+  tags:
+    - deployment
+    - identification
+  summary: Get Deployment Status and Version of Containerized Application
+  description: |-
+    Get the deployment status and current version of a containerized application on the device. 
+
+  parameters:
+    - name: application-name
+      in: path
+      description: |-
+        Name of the application
+      required: true
+      schema:
+        type: string
+        example: "my-application"
+
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                description: |
+                  Status of the deployment.
+                  Can be "none" (never deployed), "in_progress", "completed", "already_deployed", or "failed".
+                type: string
+                example: "in_progress"
+              error:
+                description: Error message if the deployment failed.
+                type: string
+                example: "failed to start container"
+              current_version:
+                description: Current version of the application running on the device.
+                type: string
+                example: "1.0.0"
+    "500":
+      description: Error during application update
+      $ref: "../../responses/internal_server_error.yml"
+
+
+put:
+  tags:
+    - deployment
+  summary: Load Containerized Application
+  description: |-
+    Update a containerized application on the device. Supply a `.mender` file containing the application.
+
+    The mender file is an archive file containing the docker-compose.yml file, all bind mounted folders and the container images. 
+
+    Such a file can be generated via https://raw.githubusercontent.com/mendersoftware/app-update-module/1.0.0/gen/app-gen.
+
+    This API call does not wait until the application update process is completed. The API returns immediately after the application update process is started. Call the GET /software/application/{application-name} endpoint to check the status of the deployment.
+
+    If a previous version of the application is running, it will be stopped and removed before the new version is started.
+
+    There is currently no rollback mechanism for application updates. If the new application fails to start, the device will be left without a running application. In this case, the user can try to fix the issue by uploading a new version of the application via this endpoint.
+
+    There is no reboot required when updating an application.
+
+  parameters:
+    - name: application-name
+      in: path
+      description: |-
+        Name of the application to be updated.
+      required: true
+      schema:
+        type: string
+        example: "my-application"
+
+  requestBody:
+    content:
+      application/x-gzip:
+        schema:
+          type: string
+          format: binary
+
+  responses:
+    "202":
+      description: Accepted, application update started
+    "412":
+      description: Precondition failed, application update already in progress
+    "500":
+      description: Error during application update
+      $ref: "../../responses/internal_server_error.yml"

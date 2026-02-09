@@ -1,0 +1,41 @@
+openapi: "3.0.2"
+info:
+  title: Core API Server
+  version: "0.0.1"
+  description: |-
+    The Moducop Core API Server is a local REST API server running on the Moducop device. 
+    It provides endpoints for deployment, identification, and other core functionalities of the device.
+
+    The current version is a minimal implementation, which may be extended with more endpoints in the future. 
+
+    The API is available at http://localhost:8090/api/v1
+
+    The API is not intended to be exposed to the outside world, but only for local use on the device. Therefore, no authentication and encryption is required for the endpoints.
+
+servers:
+  - url: http://localhost:8090/api/v1
+    description: Local API server
+tags:
+  - name: deployment
+    description: endpoints for deployment
+  - name: identification
+    description: endpoints for identification
+  - name: control
+    description: endpoints for control
+
+paths:
+  /software/core-os:
+    $ref: "./core/paths/software/core-os.yml"
+  /software/application/{application-name}:
+    $ref: "./core/paths/software/application.yml"
+  /software/io4edge/{device-name}:
+    $ref: "./core/paths/software/io4edge.yml"
+  /hardware:
+    $ref: "./core/paths/hardware.yml"
+  /system/reboot:
+    $ref: "./core/paths/system/reboot.yml"
+
+components:
+  schemas:
+    ErrorInfo:
+      $ref: "./core/components.yml#/components/schemas/ErrorInfo"
