@@ -1,4 +1,4 @@
-description: Bad request
+description: Precondition failed (update is already in progress)
 content:
   application/json:
     schema:
@@ -8,7 +8,7 @@ content:
           properties:
             code:
               type: string
-              example: api-0001
+              example: cpm-0002
             message:
               type: string
-              example: application name is required
+              example: an update is already in progress or waiting for entity core-os

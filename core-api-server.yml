@@ -3,10 +3,10 @@ info:
   title: Core API Server
   version: "0.0.1"
   description: |-
-    The Moducop Core API Server is a local REST API server running on the Moducop device. 
+    The Moducop Core API Server is a local REST API server running on the Moducop device.
     It provides endpoints for deployment, identification, and other core functionalities of the device.
 
-    The current version is a minimal implementation, which may be extended with more endpoints in the future. 
+    The current version is a minimal implementation, which may be extended with more endpoints in the future.
 
     The API is available at http://localhost:8090/api/v1
 
@@ -15,23 +15,28 @@ info:
 servers:
   - url: http://localhost:8090/api/v1
     description: Local API server
+
 tags:
   - name: deployment
-    description: endpoints for deployment
+    description: Endpoints for deployment
   - name: identification
-    description: endpoints for identification
+    description: Endpoints for identification
   - name: control
-    description: endpoints for control
+    description: Endpoints for control
 
 paths:
   /software/core-os:
     $ref: "./core/paths/software/core-os.yml"
-  /software/application/{application-name}:
+  /software/application/{applicationname}:
     $ref: "./core/paths/software/application.yml"
-  /software/io4edge/{device-name}:
+  /software/applications:
+    $ref: "./core/paths/software/applications.yml"
+  /software/io4edge/{devicename}:
     $ref: "./core/paths/software/io4edge.yml"
   /hardware:
     $ref: "./core/paths/hardware.yml"
+  /hardware/io4edge-devices:
+    $ref: "./core/paths/hardware/io4edge-devices.yml"
   /system/reboot:
     $ref: "./core/paths/system/reboot.yml"
 
@@ -39,12 +44,95 @@ components:
   schemas:
     ErrorInfo:
       type: object
+      required:
+        - code
+        - message
       properties:
         code:
           description: Error code identifying the module and error
           type: string
-          example: "auth-0001"
+          example: cpm-0005
         message:
           description: Error message
           type: string
-          example: "invalid password"
+          example: update already deployed
+
+    DeployStatus:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Deployment status code
+          enum:
+            - never_deployed
+            - waiting
+            - already_deployed
+            - in_progress
+            - success
+            - failure
+          example: in_progress
+        message:
+          type: string
+          description: Human-readable deployment status message
+          example: Update in progress
+
+    NameVersion:
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          type: string
+          example: cpu01-standard
+        version:
+          type: string
+          example: v2.7.0.40ee657.20260218.1208
+
+    EntityStatus:
+      type: object
+      required:
+        - deploy_status
+        - current
+      properties:
+        deploy_status:
+          $ref: "#/components/schemas/DeployStatus"
+        current:
+          $ref: "#/components/schemas/NameVersion"
+
+    HardwareInfo:
+      type: object
+      required:
+        - vendor
+        - model
+        - variant
+        - majorVersion
+        - serial
+      properties:
+        vendor:
+          type: string
+          example: Ci4Rail
+        model:
+          type: string
+          example: S100-MLC01
+        variant:
+          type: integer
+          example: 1
+        majorVersion:
+          type: integer
+          example: 1
+        serial:
+          type: string
+          example: 24891aa4-d098-4e7e-9a40-d07de788a928
+
+    StringList:
+      type: array
+      items:
+        type: string
+
+    EmptyObject:
+      type: object
+      additionalProperties: false

@@ -2,63 +2,65 @@ get:
   tags:
     - deployment
     - identification
-  summary: Get Deployment Status and Version of Core OS Firmware
+  summary: Get deployment status and version of Core OS firmware
   description: |-
-    Get the deployment status and current version of the Core OS firmware on the device. 
+    The currently active Core OS firmware version `current` is read from the target's filesystem.
 
+    `deploy_status.code` reflects the status of the latest Core OS firmware update deployment:
+    - never_deployed: Core API server has never seen a Core OS firmware update artifact, or the device has been reset to factory state.
+    - waiting: deployment not yet started, waiting for application update to finish
+    - already_deployed: the same firmware version is already deployed
+    - in_progress: deployment is currently in progress
+    - success: deployment completed successfully
+    - failure: deployment failed
+
+    `deploy_status.message` may contain additional information about the deployment status, e.g. error messages in case of failure.
   responses:
     "200":
       description: OK
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                description: |
-                  Status of the deployment.
-                  Can be "none" (never deployed), "in_progress", "completed", "already_deployed", or "failed".
-                type: string
-                example: "in_progress"
-              error:
-                description: Error message if the deployment failed.
-                type: string
-                example: "commit failed"
-              current_version:
-                description: Current version of the Core OS firmware running on the device.
-                type: object
-                properties:
-                  name:
-                    type: string
-                    example: "Moducop-CPU01_Standard-Image"
-                  version:
-                    type: string
-                    example: "v2.5.1"
+            $ref: "../../../core-api-server.yml#/components/schemas/EntityStatus"
+    "400":
+      $ref: "../../responses/bad_request.yml"
     "500":
-      description: Error during firmware update
       $ref: "../../responses/internal_server_error.yml"
 
 put:
   tags:
     - deployment
-  summary: Load Core OS Firmware
+  summary: Load Core OS firmware
   description: |-
-    Start to update the Linux RootFs on the device. Supply a `.mender` file containing the Core OS firmware. 
-    
-    The API returns immediately after the firmware update process is started. The device will continue to operate while the update is installed, but there will be a downtime when the device is rebooting to apply the update. Call the GET /software/core-os endpoint to check the status of the deployment.
+    Start a Linux RootFS update. Supply a `.mender` file containing the Core OS firmware.
 
+    The API returns immediately after the update process is started. Call GET /software/core-os
+    to check deployment status.
+
+    If there is already a core OS update in progress, the API returns a 412 Precondition Failed error. 
+    
+    If the supplied artifact is invalid, the API returns a 400 Bad Request error. 
+
+    If the core OS update is already deployed, the API returns a 409 Conflict error.
+    
+    If there is an application update in progress, the update is deferred until the application update is finished. Status 202 Accepted is returned in this case. 
+
+    If the update installation succeeds, the device will reboot and the new firmware will be active after the reboot (unless a rollback happens).
   requestBody:
+    required: true
     content:
-      application/x-gzip:
+      application/octet-stream:
         schema:
           type: string
           format: binary
-
   responses:
     "202":
       description: Accepted, firmware update started
+    "400":
+      $ref: "../../responses/bad_request.yml"
+    "409":
+      $ref: "../../responses/conflict.yml"
     "412":
-      description: Precondition failed, firmware update already in progress
+      $ref: "../../responses/precondition_failed.yml"
     "500":
-      description: Error during firmware update
       $ref: "../../responses/internal_server_error.yml"

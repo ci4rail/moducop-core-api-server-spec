@@ -1,42 +1,13 @@
 get:
   tags:
     - identification
-  summary: Get Moducop Hardware Information
-  description: |-
-    Get hardware information of the Moducop device.
-  security:
-    - basicAuth: []
+  summary: Get moducop hardware information
   responses:
     "200":
       description: OK
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              vendor:
-                description: Company name
-                type: string
-                example: "Ci4Rail"
-              model:
-                description: Ci4Rail part number
-                type: string
-                example: "S100-MLC01"
-              major_version:
-                description: |-
-                  Major version of the hardware, independent from the software version.
-
-                  The hardware major number is increased when breaking changes are introduced in the hardware.
-                type: integer
-                example: 1
-              variant:
-                description: Hardware variant
-                type: string
-                example: "00001"
-              serial_number:
-                description: A UUIDV4 serial number that uniquely identifies the device
-                type: string
-                example: "24891aa4-d098-4e7e-9a40-d07de788a928"
-
+            $ref: "../../core-api-server.yml#/components/schemas/HardwareInfo"
     "500":
       $ref: "../responses/internal_server_error.yml"

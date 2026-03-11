@@ -1,5 +1,5 @@
-# io4edge-rest-api
+# moducop-core-api-server-spec
 
-Documents REST API of some Io4Edge devices. 
+Documents REST API of the Moducop Core API Server. 
 
-See https://ci4rail.github.io/io4edge-rest-api/ for output.
+See https://ci4rail.github.io/moducop-core-api-server-spec/ for output.

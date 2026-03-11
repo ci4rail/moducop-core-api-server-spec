@@ -1,4 +1,4 @@
-description: Bad request
+description: Conflict (requested version is already deployed)
 content:
   application/json:
     schema:
@@ -8,7 +8,7 @@ content:
           properties:
             code:
               type: string
-              example: api-0001
+              example: cpm-0005
             message:
               type: string
-              example: application name is required
+              example: the same version is already deployed for entity core-os

@@ -1,0 +1,17 @@
+get:
+  tags:
+    - deployment
+    - identification
+  summary: List application names
+  description: |-
+    List all currently deployed containerized application names on the device. 
+    The application names are read from the target's filesystem.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "../../../core-api-server.yml#/components/schemas/StringList"
+    "500":
+      $ref: "../../responses/internal_server_error.yml"

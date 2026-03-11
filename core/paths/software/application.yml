@@ -2,88 +2,86 @@ get:
   tags:
     - deployment
     - identification
-  summary: Get Deployment Status and Version of Containerized Application
+  summary: Get deployment status and version of a containerized application
   description: |-
-    Get the deployment status and current version of a containerized application on the device. 
+    The currently active containerized application version `current` is read from the target's filesystem, 
+    more specifically from the application manifest/.env file, which must contain a SOFTWARE_VERSION variable.
 
+    `deploy_status.code` reflects the status of the latest application update deployment:
+    - waiting: deployment not yet started, waiting for other updates to finish
+    - already_deployed: the same application version is already deployed
+    - in_progress: deployment is currently in progress
+    - success: deployment completed successfully
+    - failure: deployment failed
+
+    `deploy_status.message` may contain additional information about the deployment status, e.g. error messages in case of failure.
   parameters:
-    - name: application-name
+    - name: applicationname
       in: path
-      description: |-
-        Name of the application
       required: true
+      description: Name of the application
       schema:
         type: string
-        example: "my-application"
-
+        example: nginx-demo
   responses:
     "200":
       description: OK
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                description: |
-                  Status of the deployment.
-                  Can be "none" (never deployed), "in_progress", "completed", "already_deployed", or "failed".
-                type: string
-                example: "in_progress"
-              error:
-                description: Error message if the deployment failed.
-                type: string
-                example: "failed to start container"
-              current_version:
-                description: Current version of the application running on the device.
-                type: string
-                example: "1.0.0"
+            $ref: "../../../core-api-server.yml#/components/schemas/EntityStatus"
+    "400":
+      $ref: "../../responses/bad_request.yml"
     "500":
-      description: Error during application update
       $ref: "../../responses/internal_server_error.yml"
-
 
 put:
   tags:
     - deployment
-  summary: Load Containerized Application
+  summary: Load containerized application
   description: |-
-    Update a containerized application on the device. Supply a `.mender` file containing the application.
+    Start containerized application update on the device. Supply a `.mender` file containing the application.
+    
+    The API returns immediately after the update process is started. Call
+    GET /software/application/{applicationname} to check deployment status.
 
-    The mender file is an archive file containing the docker-compose.yml file, all bind mounted folders and the container images. 
+    If there is already an application update for that application name in progress, 
+    the API returns a 412 Precondition Failed error.
 
-    Such a file can be generated via https://raw.githubusercontent.com/mendersoftware/app-update-module/1.0.0/gen/app-gen.
+    If the supplied artifact is invalid, the API returns a 400 Bad Request error.
 
-    This API call does not wait until the application update process is completed. The API returns immediately after the application update process is started. Call the GET /software/application/{application-name} endpoint to check the status of the deployment.
+    If the same application version is already deployed, the API returns a 409 Conflict error.
 
-    If a previous version of the application is running, it will be stopped and removed before the new version is started.
+    If there is a core OS or other application update in progress, the application update is 
+    deferred until the core OS update is finished. Status 202 Accepted is returned in this case.
 
-    There is currently no rollback mechanism for application updates. If the new application fails to start, the device will be left without a running application. In this case, the user can try to fix the issue by uploading a new version of the application via this endpoint.
-
-    There is no reboot required when updating an application.
+    If the update installation succeeds, the new application version will be active without requiring a reboot.
+    Note that there is no rollback mechanism for application updates, so if the new application version fails to start, 
+    the device will be left without a running instance of that application.
 
   parameters:
-    - name: application-name
+    - name: applicationname
       in: path
-      description: |-
-        Name of the application to be updated.
       required: true
+      description: Name of the application to update
       schema:
         type: string
-        example: "my-application"
-
+        example: nginx-demo
   requestBody:
+    required: true
     content:
-      application/x-gzip:
+      application/octet-stream:
         schema:
           type: string
           format: binary
-
   responses:
     "202":
       description: Accepted, application update started
+    "400":
+      $ref: "../../responses/bad_request.yml"
+    "409":
+      $ref: "../../responses/conflict.yml"
     "412":
-      description: Precondition failed, application update already in progress
+      $ref: "../../responses/precondition_failed.yml"
     "500":
-      description: Error during application update
       $ref: "../../responses/internal_server_error.yml"
