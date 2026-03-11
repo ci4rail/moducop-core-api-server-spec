@@ -1,7 +1,7 @@
 openapi: "3.0.2"
 info:
   title: Core API Server
-  version: "0.0.1"
+  version: "0.1.0"
   description: |-
     The Moducop Core API Server is a local REST API server running on the Moducop device.
     It provides endpoints for deployment, identification, and other core functionalities of the device.
