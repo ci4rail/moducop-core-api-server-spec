@@ -10,7 +10,7 @@ info:
 
     The API is available at http://localhost:8090/api/v1
 
-    The API is not intended to be exposed to the outside world, but only for local use on the device. Therefore, no authentication and encryption is required for the endpoints.
+    The API is not intended to be exposed to the outside world, but only for local use on the device. Therefore, no authentication and encryption is implemented for the endpoints.
 
 servers:
   - url: http://localhost:8090/api/v1
@@ -69,7 +69,6 @@ components:
           enum:
             - never_deployed
             - waiting
-            - already_deployed
             - in_progress
             - success
             - failure

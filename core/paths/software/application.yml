@@ -9,7 +9,6 @@ get:
 
     `deploy_status.code` reflects the status of the latest application update deployment:
     - waiting: deployment not yet started, waiting for other updates to finish
-    - already_deployed: the same application version is already deployed
     - in_progress: deployment is currently in progress
     - success: deployment completed successfully
     - failure: deployment failed
@@ -59,6 +58,18 @@ put:
     Note that there is no rollback mechanism for application updates, so if the new application version fails to start, 
     the device will be left without a running instance of that application.
 
+    Note that there is a dependency between application updates and core OS updates: if an application or core OS update is in progress, 
+    the application update will not be started until the previous application or core OS update is finished. 
+    The API will return a 202 Accepted status code in this case, 
+    and the application update will be started automatically after the previous update is finished.
+
+    No dependency exists between application and io4edge device updates.
+
+    Requirments to the application artifact:
+    - The artifact must be a .mender file containing the docker-compose.yml file, the application container images and an application manifest/.env file containing a SOFTWARE_VERSION variable.
+
+    See https://github.com/ci4rail/mender-app-gen for more details on how to create application update artifacts.
+    
   parameters:
     - name: applicationname
       in: path

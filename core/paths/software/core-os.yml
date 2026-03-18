@@ -9,7 +9,6 @@ get:
     `deploy_status.code` reflects the status of the latest Core OS firmware update deployment:
     - never_deployed: Core API server has never seen a Core OS firmware update artifact, or the device has been reset to factory state.
     - waiting: deployment not yet started, waiting for application update to finish
-    - already_deployed: the same firmware version is already deployed
     - in_progress: deployment is currently in progress
     - success: deployment completed successfully
     - failure: deployment failed
@@ -46,6 +45,12 @@ put:
     If there is an application update in progress, the update is deferred until the application update is finished. Status 202 Accepted is returned in this case. 
 
     If the update installation succeeds, the device will reboot and the new firmware will be active after the reboot (unless a rollback happens).
+
+    Note that there is a dependency between application updates and core OS updates: if an application update is in progress, 
+    a core OS update will not be started until the application update is finished. The API will return a 202 Accepted status code in this case, 
+    and the core OS update will be started automatically after the application update is finished.
+
+    No dependency exists between core OS updates and io4edge device updates.
   requestBody:
     required: true
     content:

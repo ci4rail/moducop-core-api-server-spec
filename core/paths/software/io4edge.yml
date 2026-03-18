@@ -55,6 +55,8 @@ put:
     If the update installation succeeds, the io4edge device will reboot and the new firmware will be 
     active after the reboot (unless a rollback happens).
 
+    Note that you can start multiple io4edge device firmware updates in parallel, the io4edge devices will update in parallel.
+
   parameters:
     - name: devicename
       in: path
