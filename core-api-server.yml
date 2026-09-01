@@ -27,6 +27,8 @@ tags:
 paths:
   /software/core-os:
     $ref: "./core/paths/software/core-os.yml"
+  /software/core-os-customization:
+    $ref: "./core/paths/software/core-os-customization.yml"
   /software/application/{applicationname}:
     $ref: "./core/paths/software/application.yml"
   /software/applications:

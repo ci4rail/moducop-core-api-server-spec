@@ -51,15 +51,15 @@ put:
 
     If the same application version is already deployed, the API returns a 409 Conflict error.
 
-    If there is a core OS or other application update in progress, the application update is 
-    deferred until the core OS update is finished. Status 202 Accepted is returned in this case.
+    If there is a Core OS, Core OS Customization Set, or other application update in progress, the application update is
+    deferred until the other update is finished. Status 202 Accepted is returned in this case.
 
     If the update installation succeeds, the new application version will be active without requiring a reboot.
     Note that there is no rollback mechanism for application updates, so if the new application version fails to start, 
     the device will be left without a running instance of that application.
 
-    Note that there is a dependency between application updates and core OS updates: if an application or core OS update is in progress, 
-    the application update will not be started until the previous application or core OS update is finished. 
+    Note that there is a dependency between application updates, Core OS Customization Set updates, and Core OS updates: if an application, Core OS Customization Set, or Core OS update is in progress,
+    the application update will not be started until the previous application, Core OS Customization Set, or Core OS update is finished.
     The API will return a 202 Accepted status code in this case, 
     and the application update will be started automatically after the previous update is finished.
 
