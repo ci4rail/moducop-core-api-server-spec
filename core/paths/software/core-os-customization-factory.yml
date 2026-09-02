@@ -1,0 +1,17 @@
+get:
+  tags:
+    - identification
+  summary: Get the installed factory Core OS Customization Set version
+  description: |-
+    Returns the factory Core OS Customization Set version reported by
+    `os-customization-set status`. Factory customizations are provisioned
+    outside this API and are not deployment resources.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "../../../core-api-server.yml#/components/schemas/FactoryCustomizationStatus"
+    "500":
+      $ref: "../../responses/internal_server_error.yml"
