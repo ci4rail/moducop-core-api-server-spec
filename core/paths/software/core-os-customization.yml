@@ -1,0 +1,74 @@
+get:
+  tags:
+    - deployment
+    - identification
+  summary: Get deployment status and version of Core OS Customization Set
+  description: |-
+    The currently active Core OS Customization Set version `current` is read from the target's filesystem.
+
+    `deploy_status.code` reflects the status of the latest Core OS Customization Set deployment:
+    - never_deployed: Core API server has never seen a Core OS Customization update artifact, or the device has been reset to factory state.
+    - waiting: deployment not yet started, waiting for an update to finish
+    - in_progress: deployment is currently in progress
+    - success: deployment completed successfully
+    - failure: deployment failed
+
+    `deploy_status.message` may contain additional information about the deployment status, e.g. error messages in case of failure.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "../../../core-api-server.yml#/components/schemas/EntityStatus"
+    "400":
+      $ref: "../../responses/bad_request.yml"
+    "500":
+      $ref: "../../responses/internal_server_error.yml"
+
+put:
+  tags:
+    - deployment
+  summary: Load Core OS Customization Set
+  description: |-
+    Start a Core OS Customization Set update. Supply a `.mender` file containing the Core OS Customization Set.
+
+    See [the os-customization user guide](https://github.com/ci4rail/yocto-os-customization/blob/main/docs/user-guide.md#artifact-payload) 
+    for more details on how to create Core OS Customization Set update artifacts.
+
+    The API returns immediately after the update process is started. Call GET /software/core-os-customization
+    to check deployment status.
+
+    If there is already a Core OS Customization update in progress, the API returns a 412 Precondition Failed error. 
+    
+    If the supplied artifact is invalid, the API returns a 400 Bad Request error. 
+
+    If the Core OS Customization Set is already deployed, the API returns a 409 Conflict error.
+    
+    If there is an application or Core OS update in progress, the update is deferred until the application or Core OS update is finished. Status 202 Accepted is returned in this case. 
+
+    If the update installation succeeds, the device will reboot and the new Core OS Customization Set will be active after the reboot (unless a rollback happens).
+
+    Note that there is a dependency between customization set updates, application updates and core OS updates: if an application or Core OS update is in progress, 
+    a customization set update will not be started until other updates are finished. The API will return a 202 Accepted status code in this case, 
+    and the Core OS Customization Set update will be started automatically after other updates are finished.
+
+    No dependency exists between customization set updates and io4edge device updates.
+  requestBody:
+    required: true
+    content:
+      application/octet-stream:
+        schema:
+          type: string
+          format: binary
+  responses:
+    "202":
+      description: Accepted, Core OS Customization Set update started
+    "400":
+      $ref: "../../responses/bad_request.yml"
+    "409":
+      $ref: "../../responses/conflict.yml"
+    "412":
+      $ref: "../../responses/precondition_failed.yml"
+    "500":
+      $ref: "../../responses/internal_server_error.yml"

@@ -1,7 +1,7 @@
 openapi: "3.0.2"
 info:
   title: Core API Server
-  version: "0.1.0"
+  version: "0.2.0"
   description: |-
     The Moducop Core API Server is a local REST API server running on the Moducop device.
     It provides endpoints for deployment, identification, and other core functionalities of the device.
@@ -27,6 +27,10 @@ tags:
 paths:
   /software/core-os:
     $ref: "./core/paths/software/core-os.yml"
+  /software/core-os-customization:
+    $ref: "./core/paths/software/core-os-customization.yml"
+  /software/core-os-customization/factory:
+    $ref: "./core/paths/software/core-os-customization-factory.yml"
   /software/application/{applicationname}:
     $ref: "./core/paths/software/application.yml"
   /software/applications:
@@ -101,6 +105,17 @@ components:
           $ref: "#/components/schemas/DeployStatus"
         current:
           $ref: "#/components/schemas/NameVersion"
+
+    FactoryCustomizationStatus:
+      type: object
+      required:
+        - factory_version
+      properties:
+        factory_version:
+          type: string
+          nullable: true
+          description: Version of the installed factory Core OS Customization Set, or null when none is installed.
+          example: factory-1.0.0
 
     HardwareInfo:
       type: object
